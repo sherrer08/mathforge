@@ -24,6 +24,10 @@ def test_other_variable():
 def test_unbalanced_parentheses_returns_400():
     assert post({"expression": "sin(x"}).status_code == 400
 
+def test_injection_returns_400():
+    r = post({"expression": "__import__('builtins').print('pwned')"})
+    assert r.status_code == 400
+
 def test_empty_expression_returns_422():
     assert post({"expression": ""}).status_code == 422
 
@@ -32,3 +36,6 @@ def test_order_too_high_returns_422():
 
 def test_multi_letter_variable_returns_422():
     assert post({"expression": "x", "variable": "xy"}).status_code == 422
+
+def test_e_is_eulers_number():
+    assert post({"expression": "e^x"}).json()["result"] == "exp(x)"

@@ -3,21 +3,11 @@ from tokenize import TokenError
 import sympy
 from fastapi import FastAPI, HTTPException
 from sympy import Symbol, diff, latex
-from sympy.parsing.sympy_parser import (
-    convert_xor,
-    implicit_multiplication_application,
-    parse_expr,
-    standard_transformations,
-)
+from safe_parser import UnsafeExpressionError, safe_parse
 
 from models import DifferentiateRequest, MathResult
 
 app = FastAPI(title="MathForge Compute")
-
-TRANSFORMATIONS = standard_transformations + (
-    implicit_multiplication_application,
-    convert_xor,
-)
 
 @app.get("/health")
 def health():
@@ -26,9 +16,9 @@ def health():
 @app.post("/differentiate", response_model=MathResult)
 def differentiate(req: DifferentiateRequest):
     try:
-        expr = parse_expr(req.expression, transformations=TRANSFORMATIONS)
-    except (SyntaxError, TokenError, TypeError):
-        raise HTTPException(status_code=400, detail="Could not parse the expression.")
+        expr = safe_parse(req.expression)
+    except UnsafeExpressionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
     var = Symbol(req.variable)
     result = diff(expr, var, req.order)
