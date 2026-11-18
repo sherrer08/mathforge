@@ -1,0 +1,26 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<PageTitle>MathForge</PageTitle>
+
+<h1>MathForge</h1>
+<p>Compute Service: <strong>@status</strong></p>
+
+@code {
+    private string status = "checking...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var health = await Http.GetFromJsonAsync<ComputeHealth>("health/compute");
+            status = health is null ? "no response" : $"{health.Status} (SymPy {health.Sympy})";
+        }
+        catch (HttpRequestException)
+        {
+            status = "unavailable";
+        }
+    }
+
+    private record ComputeHealth(string Status, string Service, string Sympy);
+}

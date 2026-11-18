@@ -10,7 +10,13 @@ builder.Services.AddHttpClient<ComputeClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(5);
 });
 
+var clientOrigin = builder.Configuration["Cors:AllowedOrigin"] ?? throw new InvalidOperationException("Cors:AllowedOrigin is not configured.");
+
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.WithOrigins(clientOrigin).AllowAnyHeader().AllowAnyMethod()));
+
 var app = builder.Build();
+
+app.UseCors();
 
 app.MapGet("/health", () => new { status = "ok", service = "api" });
 
