@@ -23,7 +23,7 @@ ALLOWED_FUNCTIONS = {
     "exp": sympy.exp, "log":sympy.log, "ln": sympy.log,
     "sqrt": sympy.sqrt, "abs": sympy.Abs,
 }
-ALLOWED_CONSTANTS = {"pi": sympy.pi, "e": sympy.E}
+ALLOWED_CONSTANTS = {"pi": sympy.pi, "e": sympy.E, "oo": sympy.oo, "inf": sympy.oo}
 ALLOWED_OPERATORS = {"+", "-", "*", "/", "^", "**", "(", ")", ","}
 IGNORED_TOKENS = {
     tokenize.NEWLINE, tokenize.NL, tokenize.ENDMARKER,
