@@ -13,9 +13,11 @@ x = sympy.Symbol("x")
     ("e^x", sympy.exp(x)),
     ("ln(x)", sympy.log(x)),
     ("sqrt(x) + pi", sympy.sqrt(x) + sympy.pi),
+    ("oo", sympy.oo),
 ])
 def test_valid_math_parses(text, expected):
-    assert sympy.simplify(safe_parse(text) - expected) == 0
+    result = safe_parse(text)
+    assert result == expected or sympy.simplify(safe_parse(text) - expected) == 0
 
 @pytest.mark.parametrize("attack", [
     "__import__('builtins').print('pwned')",
