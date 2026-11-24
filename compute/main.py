@@ -1,10 +1,10 @@
 import sympy
 from fastapi import FastAPI, HTTPException
 
-from models import DifferentiateRequest, IntegrateRequest, LimitRequest, SolveRequest, MathResult
+from models import DifferentiateRequest, IntegrateRequest, LimitRequest, SolveRequest, SimplifyRequest, MathResult
 from safe_parser import UnsafeExpressionError
 from sandbox import ComputationFailed, ComputationTimeout, run_limited
-from tasks import MathError, differentiate_task, integrate_task, limit_task, solve_task
+from tasks import MathError, differentiate_task, integrate_task, limit_task, solve_task, simplify_task
 
 app = FastAPI(title="MathForge Compute")
 
@@ -39,3 +39,7 @@ def limit(req: LimitRequest):
 @app.post("/solve", response_model=MathResult)
 def solve(req: SolveRequest):
     return run_task(solve_task, req.expression, req.variable)
+
+@app.post("/simplify", response_model=MathResult)
+def simplify(req: SimplifyRequest):
+    return run_task(simplify_task, req.expression, req.operation)

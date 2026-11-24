@@ -26,6 +26,9 @@ class LimitRequest(ExpressionRequest):
 class SolveRequest(ExpressionRequest):
     expression: str = Field(min_length=1, max_length=200, examples=["x^2 = 4"])
 
+class SimplifyRequest(ExpressionRequest):
+    operation: Literal["simplify", "expand", "factor"] = "simplify"
+
 class MathResult(BaseModel):
     input_latex: str
     result: str
