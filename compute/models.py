@@ -23,6 +23,9 @@ class LimitRequest(ExpressionRequest):
     point: str = Field(min_length=1, max_length=50, examples=["0"])
     direction: Literal["+", "-", "+-"] = "+-"
 
+class SolveRequest(ExpressionRequest):
+    expression: str = Field(min_length=1, max_length=200, examples=["x^2 = 4"])
+
 class MathResult(BaseModel):
     input_latex: str
     result: str
