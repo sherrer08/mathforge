@@ -7,6 +7,12 @@ NOT_FINITE = (sympy.oo, -sympy.oo, sympy.zoo, sympy.nan)
 
 UNDEFINED = (sympy.zoo, sympy.nan)
 
+SIMPLIFY_OPERATIONS = {
+    "simplify": sympy.simplify,
+    "expand": sympy.expand,
+    "factor": sympy.factor,
+}
+
 class MathError(ValueError):
     pass
 
@@ -56,7 +62,7 @@ def limit_task(expression: str, variable: str, point: str, direction: str) -> di
         raise MathError("This limit does not exist.") from exc
 
     if result.has(Limit):
-        raise MathError("This limit could not be evaluated")
+        raise MathError("This limit could not be evaluated.")
     if result.has(AccumBounds) or result.has(*UNDEFINED):
         raise MathError("This limit does not exist.")
 
@@ -81,7 +87,7 @@ def solve_task(expression: str, variable: str) -> dict:
         raise MathError("This equation could not be solved exactly.") from exc
 
     if solutions.has(sympy.ConditionSet):
-        raise MathError("This eqeuation could not be solved exactly.")
+        raise MathError("This equation could not be solved exactly.")
 
     if solutions == sympy.S.EmptySet:
         result, result_latex = "No real solutions", r"\varnothing"
@@ -95,3 +101,14 @@ def solve_task(expression: str, variable: str) -> dict:
         "result": result,
         "result_latex": result_latex,
     }
+
+def simplify_task(expression: str, operation: str) -> dict:
+    expr = safe_parse(expression)
+    op = SIMPLIFY_OPERATIONS[operation]
+    result = op(expr)
+    return {
+        "input_latex": latex(expr),
+        "result": str(result),
+        "result_latex": latex(result),
+    }
+    
