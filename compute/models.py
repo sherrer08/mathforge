@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field, model_validator
 
 class ExpressionRequest(BaseModel):
@@ -16,6 +18,10 @@ class IntegrateRequest(ExpressionRequest):
         if (self.lower is None) != (self.upper is None):
             raise ValueError("Provide both lower and upper bounds, or neither.")
         return self
+
+class LimitRequest(ExpressionRequest):
+    point: str = Field(min_length=1, max_length=50, examples=["0"])
+    direction: Literal["+", "-", "+-"] = "+-"
 
 class MathResult(BaseModel):
     input_latex: str
