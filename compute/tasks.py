@@ -111,4 +111,44 @@ def simplify_task(expression: str, operation: str) -> dict:
         "result": str(result),
         "result_latex": latex(result),
     }
-    
+
+def _format_eigenvalues(eigenvalues: dict) -> tuple[str, str]:
+    text = ", ".join(
+        f"{value} (multiplicity {count})" if count > 1 else str(value)
+        for value, count in eigenvalues.items()
+    )
+    tex = r"\lambda = " + ", ".join(latex(value) for value in eigenvalues)
+    return text, tex
+
+def matrix_task(matrix: list[list[str]], operation: str) -> dict:
+    m = sympy.Matrix([[safe_parse(entry) for entry in row] for row in matrix])
+    shown = latex(m)
+
+    if operation == "determinant":
+        result = m.det()
+        input_latex = rf"\det {shown}"
+    elif operation == "inverse":
+        try:
+            result = m.inv()
+        except ValueError as exc:
+            raise MathError("This matrix is not invertible.") from exc
+        input_latex = rf"{shown}^{{-1}}"
+    elif operation == "rref":
+        result, _pivots = m.rref()
+        input_latex = rf"\operatorname{{rref}} {shown}"
+    elif operation == "transpose":
+        result = m.T
+        input_latex = rf"{shown}^{{T}}"
+    elif operation == "eigenvalues":
+        text, tex = _format_eigenvalues(m.eigenvals())
+        return {
+            "input_latex": rf"\operatorname{{eig}} {shown}",
+            "result": text,
+            "result_latex": tex,
+        }
+
+    return {
+        "input_latex": input_latex,
+        "result": str(result),
+        "result_latex": latex(result),
+    }
