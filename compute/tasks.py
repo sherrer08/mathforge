@@ -1,7 +1,7 @@
 import sympy
 from sympy import AccumBounds, Integral, Symbol, Limit, diff, integrate, limit, latex
 
-from safe_parser import safe_parse
+from safe_parser import UnsafeExpressionError, safe_parse
 
 NOT_FINITE = (sympy.oo, -sympy.oo, sympy.zoo, sympy.nan)
 
@@ -64,4 +64,34 @@ def limit_task(expression: str, variable: str, point: str, direction: str) -> di
         "input_latex": latex(Limit(expr, var, at, dir=direction)),
         "result": str(result),
         "result_latex": latex(result),
+    }
+
+def solve_task(expression: str, variable: str) -> dict:
+    sides = expression.split("=")
+    if len(sides) > 2:
+        raise UnsafeExpressionError("An equation can contain at most one '='.")
+
+    lhs = safe_parse(sides[0])
+    rhs = safe_parse(sides[1]) if len(sides) == 2 else sympy.Integer(0)
+    var = Symbol(variable)
+
+    try:
+        solutions = sympy.solveset(lhs - rhs, var, domain=sympy.S.Reals)
+    except NotImplementedError as exc:
+        raise MathError("This equation could not be solved exactly.") from exc
+
+    if solutions.has(sympy.ConditionSet):
+        raise MathError("This eqeuation could not be solved exactly.")
+
+    if solutions == sympy.S.EmptySet:
+        result, result_latex = "No real solutions", r"\varnothing"
+    elif solutions == sympy.S.Reals:
+        result, result_latex = "All real numbers", r"\mathbb{R}"
+    else:
+        result, result_latex = str(solutions), latex(solutions)
+
+    return {
+        "input_latex": latex(sympy.Eq(lhs, rhs, evaluate=False)),
+        "result": result,
+        "result_latex": result_latex,
     }
